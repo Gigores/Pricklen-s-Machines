@@ -1,5 +1,7 @@
-package com.pricklen.machines;
+package com.pricklen.machines.block;
 
+import com.pricklen.machines.item.ModItems;
+import com.pricklen.machines.PMachines;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

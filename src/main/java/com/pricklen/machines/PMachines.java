@@ -1,6 +1,8 @@
 package com.pricklen.machines;
 
 import com.mojang.logging.LogUtils;
+import com.pricklen.machines.block.ModBlocks;
+import com.pricklen.machines.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;

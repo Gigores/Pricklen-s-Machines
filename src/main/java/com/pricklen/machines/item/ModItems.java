@@ -1,8 +1,7 @@
-package com.pricklen.machines;
+package com.pricklen.machines.item;
 
-import net.minecraft.resources.ResourceLocation;
+import com.pricklen.machines.PMachines;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;

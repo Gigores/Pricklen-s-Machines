@@ -1,5 +1,7 @@
 package com.pricklen.machines;
 
+import com.pricklen.machines.block.ModBlocks;
+import com.pricklen.machines.item.ModItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
