@@ -5,5 +5,8 @@
   "item.pricklensmachines.fireclay_brick": "Fireclay Brick",
 
   "block.pricklensmachines.fireclay_bricks": "Fireclay Bricks",
+  "block.pricklensmachines.fireclay_brick_slab": "Fireclay Brick Slab",
+  "block.pricklensmachines.fireclay_brick_wall": "Fireclay Brick Wall",
+  "block.pricklensmachines.fireclay_brick_stairs": "Fireclay Brick Stairs",
   "block.pricklensmachines.fireclay_block": "Fireclay Block"
 }
