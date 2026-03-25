@@ -14,10 +14,14 @@ public class ModCreativeModeTabs {
 
     public static final RegistryObject<CreativeModeTab> MACHINES_TAB = CREATIVE_MODE_TABS.register("machines_tab",
             () -> CreativeModeTab.builder()
-                    .icon(() -> new ItemStack(ModItems.FIRECLAY.get()))
+                    .icon(() -> new ItemStack(ModItems.FIRECLAY_BRICK.get()))
                     .title(Component.translatable("creativetab.machines_tab"))
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.FIRECLAY.get());
+                        pOutput.accept(ModBlocks.FIRECLAY_BLOCK.get());
+
+                        pOutput.accept(ModItems.FIRECLAY_BRICK.get());
+                        pOutput.accept(ModBlocks.FIRECLAY_BRICKS.get());
                     })
                     .build()
     );

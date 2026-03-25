@@ -1,4 +1,9 @@
 {
   "creativetab.machines_tab": "Pricklen's Machines",
-  "item.pricklensmachines.fireclay": "Fireclay"
+
+  "item.pricklensmachines.fireclay": "Fireclay",
+  "item.pricklensmachines.fireclay_brick": "Fireclay Brick",
+
+  "block.pricklensmachines.fireclay_bricks": "Fireclay Bricks",
+  "block.pricklensmachines.fireclay_block": "Fireclay Block"
 }

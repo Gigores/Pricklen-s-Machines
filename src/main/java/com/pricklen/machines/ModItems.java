@@ -15,6 +15,9 @@ public class ModItems {
     public static final RegistryObject<Item> FIRECLAY = ITEMS.register("fireclay",
             () -> new Item(new Item.Properties())
     );
+    public static final RegistryObject<Item> FIRECLAY_BRICK = ITEMS.register("fireclay_brick",
+            () -> new Item(new Item.Properties())
+    );
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
