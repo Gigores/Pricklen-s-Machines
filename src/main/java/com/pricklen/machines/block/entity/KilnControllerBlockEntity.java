@@ -1,9 +1,11 @@
 package com.pricklen.machines.block.entity;
 
+import com.pricklen.machines.block.ModBlocks;
 import com.pricklen.machines.item.ModItems;
 import com.pricklen.machines.screen.KilnMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
@@ -17,6 +19,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -113,8 +117,6 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         progress = pTag.getInt("kiln_controller.progress");
     }
 
-    public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
-        if(hasRecipe()) {
     public void serverTick(Level pLevel, BlockPos pPos, BlockState pState) {
         if(hasRecipe() && hasStructure(pLevel, pPos, pState)) {
             increaseCraftingProgress();
@@ -134,6 +136,42 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             BlockPos smokePos = calculateRelativeBlockPos(pPos, 0, 0, 1);
             pLevel.addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true, smokePos.getX() + .5f, smokePos.getY() + 1, smokePos.getZ() + .5f, 0, .1, 0);
         }
+    }
+
+    public Direction getFacing() {
+        if (level == null) return Direction.NORTH;
+        BlockState state = level.getBlockState(worldPosition);
+        return state.getValue(HorizontalDirectionalBlock.FACING);
+    }
+
+    private BlockPos calculateRelativeBlockPos(BlockPos pos, int dX, int dY, int dZ) {
+        /*
+          +
+        - B + [x-]
+          -
+         [z|]
+         */
+        return switch (getFacing()) {
+            case NORTH -> new BlockPos(pos.getX() - dX, pos.getY() + dY, pos.getZ() + dZ);
+            case SOUTH -> new BlockPos(pos.getX() + dX, pos.getY() + dY, pos.getZ() - dZ);
+            case EAST -> new BlockPos(pos.getX() - dZ, pos.getY() + dY, pos.getZ() - dX);
+            case WEST -> new BlockPos(pos.getX() + dZ, pos.getY() + dY, pos.getZ() + dX);
+            default -> pos;
+        };
+    }
+
+    private boolean hasStructure(Level pLevel, BlockPos pos, BlockState pState) {
+        for (StructurePart part : STRUCTURE) {
+            BlockPos target = calculateRelativeBlockPos(pos, part.x, part.y, part.z);
+            if (!level.getBlockState(target).is(part.block)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private boolean check(Level level, BlockPos origin, int dx, int dy, int dz, Block expected) {
+        BlockPos checkPos = calculateRelativeBlockPos(origin, dx, dy, dz);
+        return level.getBlockState(checkPos).is(expected);
     }
 
     private void resetProgress() {
@@ -170,4 +208,67 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     private void increaseCraftingProgress() {
         progress++;
     }
+
+    private record StructurePart(int x, int y, int z, Block block) {}
+
+    private static final StructurePart[] STRUCTURE = new StructurePart[] {
+            /*
+            ...
+            WBW
+            B B
+            WBW
+            ---
+            WBW
+            B B
+            WBW
+            ---
+            WBW
+            B B
+            WBW
+            ---
+            BBB
+            BBB
+            BMB
+            ---
+            B - ModBlocks.FIRECLAY_BRICKS
+            W - ModBlocks.FIRECLAY_BRICK_WALL
+            M - this
+            */
+            new StructurePart(-1, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(0, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(0, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+//            new StructurePart(0, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+
+            new StructurePart(-1, 1, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 1, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 1, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(-1, 1, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 1, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 1, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 1, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 1, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+
+            new StructurePart(-1, 2, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 2, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 2, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(-1, 2, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 2, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 2, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 2, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 2, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+
+            new StructurePart(-1, 3, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 3, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 3, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(-1, 3, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 3, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 3, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 3, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 3, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+    };
 }
