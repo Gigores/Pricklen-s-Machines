@@ -1,9 +1,11 @@
 package com.pricklen.machines.block;
 
+import com.pricklen.machines.block.entity.KilnControllerBlockEntity;
 import com.pricklen.machines.block.entity.KilnHatchBlockEntity;
 import com.pricklen.machines.block.entity.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class KilnHatchBlock extends BaseEntityBlock {
@@ -55,9 +58,20 @@ public class KilnHatchBlock extends BaseEntityBlock {
 
             System.out.println("Mode set to " + newMode);
             level.setBlock(pos, state.setValue(MODE, newMode), 3);
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
+        if (!level.isClientSide) {
+            BlockEntity entity = level.getBlockEntity(pos);
+            if(entity instanceof KilnHatchBlockEntity) {
+                NetworkHooks.openScreen(((ServerPlayer)player), (KilnHatchBlockEntity) entity, pos);
+            } else {
+                throw new IllegalStateException("Our Container provider is missing!");
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
         return InteractionResult.sidedSuccess(level.isClientSide);
+
     }
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;

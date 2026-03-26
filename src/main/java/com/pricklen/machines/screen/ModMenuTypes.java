@@ -17,6 +17,8 @@ public class ModMenuTypes {
 
     public static final RegistryObject<MenuType<KilnMenu>> KILN_MENU =
             registerMenuType("kiln_menu", KilnMenu::new);
+    public static final RegistryObject<MenuType<KilnHatchMenu>> KILN_HATCH_MENU =
+            registerMenuType("kiln_hatch_menu", KilnHatchMenu::new);
 
     private static <T extends AbstractContainerMenu>RegistryObject<MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));

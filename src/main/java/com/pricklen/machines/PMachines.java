@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.pricklen.machines.block.ModBlocks;
 import com.pricklen.machines.block.entity.ModBlockEntities;
 import com.pricklen.machines.item.ModItems;
+import com.pricklen.machines.screen.KilnHatchScreen;
 import com.pricklen.machines.screen.KilnScreen;
 import com.pricklen.machines.screen.ModMenuTypes;
 import net.minecraft.client.Minecraft;
@@ -96,6 +97,7 @@ public class PMachines {
 //            LOGGER.info("HELLO FROM CLIENT SETUP");
 //            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
             MenuScreens.register(ModMenuTypes.KILN_MENU.get(), KilnScreen::new);
+            MenuScreens.register(ModMenuTypes.KILN_HATCH_MENU.get(), KilnHatchScreen::new);
         }
     }
 }
