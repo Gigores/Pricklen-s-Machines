@@ -76,4 +76,17 @@ public class KilnHatchBlock extends BaseEntityBlock {
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.getBlock() != newState.getBlock()) {
+
+            BlockEntity be = level.getBlockEntity(pos);
+
+            if (be instanceof KilnHatchBlockEntity hatch) {
+                hatch.drops();
+            }
+        }
+
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
 }

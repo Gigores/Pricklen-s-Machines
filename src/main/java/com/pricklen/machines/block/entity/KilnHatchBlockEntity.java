@@ -25,17 +25,21 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class KilnHatchBlockEntity extends BlockEntity implements MenuProvider, Container {
+public class KilnHatchBlockEntity extends BlockEntity implements MenuProvider {
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
+    private static final int SIZE = 4;
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(4);
+    private final ItemStackHandler itemHandler = new ItemStackHandler(SIZE) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
 
-    private LazyOptional<IItemHandler> lazyItemHandler =
-            LazyOptional.of(() -> itemHandler);
+    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
-    public KilnHatchBlockEntity(BlockPos pPos, BlockState pBlockState) {
-        super(ModBlockEntities.KILN_HATCH.get(), pPos, pBlockState);
+    public KilnHatchBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.KILN_HATCH.get(), pos, state);
     }
 
     @Override
@@ -43,20 +47,13 @@ public class KilnHatchBlockEntity extends BlockEntity implements MenuProvider, C
         return Component.translatable("block.pricklensmachines.kiln_hatch");
     }
 
-    public void drops() {
-        SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            inventory.setItem(i, itemHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inventory);
-    }
     @Override
-    public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new KilnHatchMenu(pContainerId, pPlayerInventory, this);
+    public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+        return new KilnHatchMenu(id, playerInventory, this);
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             return lazyItemHandler.cast();
         }
@@ -68,80 +65,49 @@ public class KilnHatchBlockEntity extends BlockEntity implements MenuProvider, C
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
     }
+
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
         lazyItemHandler.invalidate();
     }
-    @Override
-    public int getContainerSize() {
-        return items.size(); // 9
+
+    public void drops() {
+        if (level == null) return;
+
+        Containers.dropContents(level, worldPosition, new SimpleContainer(
+                itemHandler.getStackInSlot(0),
+                itemHandler.getStackInSlot(1),
+                itemHandler.getStackInSlot(2),
+                itemHandler.getStackInSlot(3)
+        ));
     }
 
-    @Override
-    public boolean isEmpty() {
-        for (ItemStack stack : items) {
-            if (!stack.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public ItemStack getItem(int pSlot) {
-        return items.get(pSlot);
-    }
-
-    @Override
-    public ItemStack removeItem(int pSlot, int pAmount) {
-        ItemStack stack = ContainerHelper.removeItem(items, pSlot, pAmount);
-        if (!stack.isEmpty()) {
-            setChanged();
-        }
-        return stack;
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int pSlot) {
-        return ContainerHelper.takeItem(items, pSlot);
-    }
-
-    @Override
-    public void setItem(int pSlot, ItemStack pStack) {
-        items.set(pSlot, pStack);
-
-        if (pStack.getCount() > getMaxStackSize()) {
-            pStack.setCount(getMaxStackSize());
-        }
-
-        setChanged();
-    }
-
-    @Override
-    public boolean stillValid(Player pPlayer) {
-        if (level == null) return false;
-
-        return pPlayer.distanceToSqr(
-                worldPosition.getX() + 0.5,
-                worldPosition.getY() + 0.5,
-                worldPosition.getZ() + 0.5
-        ) <= 64.0;
-    }
-
-    @Override
-    public void clearContent() {
-        items.clear();
-    }
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        ContainerHelper.saveAllItems(tag, items);
+        tag.put("inventory", itemHandler.serializeNBT());
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        ContainerHelper.loadAllItems(tag, items);
+        if (tag.contains("inventory")) {
+            itemHandler.deserializeNBT(tag.getCompound("inventory"));
+        }
+    }
+
+    public ItemStackHandler getItemHandler() {
+        return itemHandler;
+    }
+
+    public boolean stillValid(Player player) {
+        if (level == null) return false;
+
+        return player.distanceToSqr(
+                worldPosition.getX() + 0.5,
+                worldPosition.getY() + 0.5,
+                worldPosition.getZ() + 0.5
+        ) <= 64.0;
     }
 }

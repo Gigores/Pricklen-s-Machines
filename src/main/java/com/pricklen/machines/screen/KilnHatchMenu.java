@@ -16,26 +16,76 @@ import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 public class KilnHatchMenu extends AbstractContainerMenu {
+
     public final KilnHatchBlockEntity blockEntity;
     private final Level level;
-    private final Container container;
 
-    public KilnHatchMenu(int pContainerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(pContainerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
+    private static final int TE_SLOT_COUNT = 4;
+
+    // ---------------- Constructors ----------------
+
+    public KilnHatchMenu(int id, Inventory inv, FriendlyByteBuf extraData) {
+        this(id, inv,
+                inv.player.level().getBlockEntity(extraData.readBlockPos()));
     }
-    public KilnHatchMenu(int pContainerId, Inventory inv, BlockEntity entity) {
-        super(ModMenuTypes.KILN_HATCH_MENU.get(), pContainerId);
-        checkContainerSize((Container) entity, 4);
+
+    public KilnHatchMenu(int id, Inventory inv, BlockEntity entity) {
+        super(ModMenuTypes.KILN_HATCH_MENU.get(), id);
+
         if (!(entity instanceof KilnHatchBlockEntity be)) {
             throw new IllegalStateException("Wrong BlockEntity!");
         }
+
         this.blockEntity = be;
         this.level = inv.player.level();
-        this.container = (Container) entity;
+
         addPlayerHotbar(inv);
         addPlayerInventory(inv);
-        addHatchInventory(container);
-//        addDataSlots(data);
+        addHatchSlots();
+
+    }
+
+    // ---------------- Slots ----------------
+
+    private void addHatchSlots() {
+        var handler = blockEntity.getItemHandler();
+
+        // 2x2 grid = 4 slots
+        int index = 0;
+
+        for (int i = 0; i < 2; ++i) {
+            for (int l = 0; l < 2; ++l) {
+                this.addSlot(new SlotItemHandler(
+                        handler,
+                        index,
+                        71 + l * 18,
+                        23 + i * 18
+                ));
+                index++;
+            }
+        }
+    }
+
+    private void addPlayerInventory(Inventory playerInventory) {
+        for (int i = 0; i < 3; ++i) {
+            for (int l = 0; l < 9; ++l) {
+                this.addSlot(new Slot(playerInventory,
+                        l + i * 9 + 9,
+                        8 + l * 18,
+                        84 + i * 18
+                ));
+            }
+        }
+    }
+
+    private void addPlayerHotbar(Inventory playerInventory) {
+        for (int i = 0; i < 9; ++i) {
+            this.addSlot(new Slot(playerInventory,
+                    i,
+                    8 + i * 18,
+                    142
+            ));
+        }
     }
 
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
@@ -88,30 +138,13 @@ public class KilnHatchMenu extends AbstractContainerMenu {
         return copyOfSourceStack;
     }
 
+
     @Override
-    public boolean stillValid(Player pPlayer) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), pPlayer, ModBlocks.KILN_HATCH.get());
-    }
-
-    private void addPlayerInventory(Inventory playerInventory) {
-        for (int i = 0; i < 3; ++i) {
-            for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
-            }
-        }
-    }
-
-    private void addHatchInventory(Container container) {
-        for (int i = 0; i < 2; ++i) {
-            for (int l = 0; l < 2; ++l) {
-                this.addSlot(new Slot(container, l + i * 2, 71 + l * 18, 23 + i * 18));
-            }
-        }
-    }
-
-    private void addPlayerHotbar(Inventory playerInventory) {
-        for (int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
-        }
+    public boolean stillValid(Player player) {
+        return stillValid(
+                ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+                player,
+                ModBlocks.KILN_HATCH.get()
+        );
     }
 }
