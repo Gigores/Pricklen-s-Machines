@@ -115,6 +115,8 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
         if(hasRecipe()) {
+    public void serverTick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if(hasRecipe() && hasStructure(pLevel, pPos, pState)) {
             increaseCraftingProgress();
             setChanged(pLevel, pPos, pState);
 
@@ -124,6 +126,13 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             }
         } else {
             resetProgress();
+        }
+    }
+
+    public void clientTick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if(hasRecipe() && hasStructure(pLevel, pPos, pState)) {
+            BlockPos smokePos = calculateRelativeBlockPos(pPos, 0, 0, 1);
+            pLevel.addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true, smokePos.getX() + .5f, smokePos.getY() + 1, smokePos.getZ() + .5f, 0, .1, 0);
         }
     }
 
