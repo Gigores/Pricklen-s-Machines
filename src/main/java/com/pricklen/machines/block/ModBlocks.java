@@ -32,6 +32,9 @@ public class ModBlocks {
     public static final RegistryObject<Block> FIRECLAY_BLOCK = registerBlock("fireclay_block",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.CLAY))
     );
+    public static final RegistryObject<Block> KILN = registerBlock("kiln_controller",
+            () -> new KilnControllerBlock(BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS))
+    );
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

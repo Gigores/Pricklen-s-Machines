@@ -4,7 +4,6 @@
     "front": "pricklensmachines:block/kiln_unlit",
     "side": "pricklensmachines:block/fireclay_bricks",
     "top": "pricklensmachines:block/fireclay_bricks",
-    "bottom": "pricklensmachines:block/fireclay_bricks",
 	"particle": "pricklensmachines:block/fireclay_bricks"
   }
 }

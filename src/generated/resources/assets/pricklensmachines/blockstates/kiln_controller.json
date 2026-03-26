@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "pricklensmachines:block/kiln_unlit",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "pricklensmachines:block/kiln_unlit"
+    },
+    "facing=south": {
+      "model": "pricklensmachines:block/kiln_unlit",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "pricklensmachines:block/kiln_unlit",
+      "y": 270
+    }
+  }
+}

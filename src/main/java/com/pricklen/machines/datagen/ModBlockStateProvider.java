@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -24,6 +25,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
         stairsBlock(((StairBlock) ModBlocks.FIRECLAY_BRICK_STAIRS.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()));
         slabBlock(((SlabBlock) ModBlocks.FIRECLAY_BRICK_SLAB.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()));
         wallBlock(((WallBlock) ModBlocks.FIRECLAY_BRICK_WALL.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()));
+
+        horizontalBlock(ModBlocks.KILN.get(), new ModelFile.UncheckedModelFile(PMachines.MODID + ":block/kiln_unlit"));
     }
     private void blockWithItem(RegistryObject<Block> blockRegistryObject) {
         simpleBlockWithItem(blockRegistryObject.get(), cubeAll(blockRegistryObject.get()));
