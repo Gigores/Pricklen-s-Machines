@@ -163,6 +163,8 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
                 pullFromHatches(structure.inputHatches());
             if (hasOutputItem())
                 pushToHatches(structure.outputHatches());
+            if (!isBurning())
+                pullFromHatchesToFuel(structure.inputHatches());
         }
 
         if (isBurning()) {
@@ -172,7 +174,8 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             consumeFuel();
         }
 
-        boolean canWork = hasRecipe() && structure.isValid() && isBurning();
+        boolean valid = structure.isValid() && hasRecipe();
+        boolean canWork = valid && isBurning();
 
         if (canWork) {
             increaseCraftingProgress();
@@ -181,7 +184,7 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
                 craftItem();
                 resetProgress();
             }
-        } else {
+        } else if (!valid) {
             resetProgress();
         }
         level.setBlock(pos, state.setValue(KilnControllerBlock.LIT, isBurning()), 3);
@@ -199,16 +202,52 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             IItemHandler from = fromCap.orElseThrow(RuntimeException::new);
             IItemHandler to = toCap.orElseThrow(RuntimeException::new);
 
-            for (int i = 0; i < from.getSlots(); i++) {
-                ItemStack extracted = from.extractItem(i, 1, true);
-                if (!extracted.isEmpty()) {
-                    ItemStack remainder = ItemHandlerHelper.insertItem(to, extracted, true);
-                    if (remainder.isEmpty()) {
-                        ItemStack realExtract = from.extractItem(i, 1, false);
-                        ItemHandlerHelper.insertItem(to, realExtract, false);
-                        return;
-                    }
+            ItemStack extracted = from.extractItem(INPUT_SLOT, 1, true);
+            if (!extracted.isEmpty()) {
+                ItemStack remainder = ItemHandlerHelper.insertItem(to, extracted, true);
+                if (remainder.isEmpty()) {
+                    ItemStack realExtract = from.extractItem(INPUT_SLOT, 1, false);
+                    ItemHandlerHelper.insertItem(to, realExtract, false);
+                    return;
                 }
+            }
+        }
+    }
+    public void pullFromHatchesToFuel(List<BlockPos> inputHatches) {
+        if (inputHatches.isEmpty() || level == null) return;
+
+        var fromBE = level.getBlockEntity(inputHatches.get(0));
+        if (fromBE == null) return;
+
+        LazyOptional<IItemHandler> fromCap =
+                fromBE.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+        LazyOptional<IItemHandler> toCap =
+                this.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+
+//        if (fromCap.isEmpty() || toCap.isEmpty()) return;
+
+        IItemHandler from = fromCap.orElseThrow(RuntimeException::new);
+        IItemHandler to = toCap.orElseThrow(RuntimeException::new);
+
+        for (int i = 0; i < from.getSlots(); i++) {
+
+            ItemStack stack = from.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+
+            if (ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) <= 0) {
+                continue;
+            }
+
+            ItemStack simulatedExtract = from.extractItem(i, 1, true);
+
+            if (simulatedExtract.isEmpty()) continue;
+
+            ItemStack remainder = ItemHandlerHelper.insertItem(to, simulatedExtract, true);
+
+            if (remainder.isEmpty()) {
+                ItemStack realExtract = from.extractItem(i, 1, false);
+                ItemHandlerHelper.insertItem(to, realExtract, false);
+                return;
             }
         }
     }
