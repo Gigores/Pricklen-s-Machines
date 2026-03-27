@@ -1,10 +1,7 @@
 package com.pricklen.machines.block.entity;
 
 import com.mojang.logging.LogUtils;
-import com.pricklen.machines.block.HatchMode;
-import com.pricklen.machines.block.KilnControllerBlock;
-import com.pricklen.machines.block.KilnHatchBlock;
-import com.pricklen.machines.block.ModBlocks;
+import com.pricklen.machines.block.*;
 import com.pricklen.machines.item.ModItems;
 import com.pricklen.machines.screen.KilnMenu;
 import net.minecraft.core.BlockPos;
@@ -53,6 +50,10 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             }
             return super.isItemValid(slot, stack);
         }
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
     };
     private static final int INPUT_SLOT = 0;
     private static final int FUEL_SLOT = 1;
@@ -100,6 +101,10 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            if (side == Direction.WEST || side == Direction.EAST || side == Direction.NORTH || side == Direction.SOUTH)
+                return LazyOptional.of(() ->
+                        new SingleSlotItemHandler(itemHandler, FUEL_SLOT)
+                ).cast();
             return lazyItemHandler.cast();
         }
         return super.getCapability(cap, side);
@@ -396,6 +401,9 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
 
     private void increaseCraftingProgress() {
         progress++;
+    }
+    public ItemStackHandler getItemHandler() {
+        return itemHandler;
     }
 
     private record StructurePart(int x, int y, int z, Block block) {}
