@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class KilnScreen extends AbstractContainerScreen<KilnMenu> {
 
     private static final ResourceLocation TEXTURE =
-            new ResourceLocation(PMachines.MODID, "textures/gui/kiln_gui.png");
+            new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
 
     public KilnScreen(KilnMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
@@ -36,7 +36,7 @@ public class KilnScreen extends AbstractContainerScreen<KilnMenu> {
 
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
         if(menu.isCrafting()) {
-            guiGraphics.blit(TEXTURE, x + 85, y + 30, 176, 0, 8, menu.getScaledProgress());
+            guiGraphics.blit(TEXTURE, x + 79, y + 35, 176, 14, menu.getScaledProgress(), 17);
         }
     }
 
