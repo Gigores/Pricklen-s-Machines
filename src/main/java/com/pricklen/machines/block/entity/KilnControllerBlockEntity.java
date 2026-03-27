@@ -18,7 +18,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -35,10 +38,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class KilnControllerBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -183,6 +183,7 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         boolean canWork = valid && isBurning();
 
         if (canWork) {
+            maxProgress = getCookingTime();
             increaseCraftingProgress();
             setChanged(level, pos, state);
             if (hasProgressFinished()) {
@@ -215,7 +216,6 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             ItemStack stack = from.getStackInSlot(i);
             if (stack.isEmpty()) continue;
 
-            // пробуем извлечь 1 предмет
             ItemStack simulated = from.extractItem(i, 1, true);
             if (simulated.isEmpty()) continue;
 
@@ -295,7 +295,7 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     private void consumeFuel() {
         ItemStack fuelStack = itemHandler.getStackInSlot(FUEL_SLOT);
 
-        int burnTime = getBurnTime(fuelStack);
+        int burnTime = (int) (getBurnTime(fuelStack) / 1.5);
 
         if (burnTime > 0) {
             fuel = burnTime;
@@ -367,11 +367,49 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     private void craftItem() {
-        ItemStack result = new ItemStack(ModItems.FIRECLAY_BRICK.get(), 1);
-        this.itemHandler.extractItem(INPUT_SLOT, 1, false);
+        Optional<? extends AbstractCookingRecipe> recipe = getCurrentRecipe();
+        if (recipe.isEmpty()) return;
 
-        this.itemHandler.setStackInSlot(OUTPUT_SLOT, new ItemStack(result.getItem(),
-                this.itemHandler.getStackInSlot(OUTPUT_SLOT).getCount() + result.getCount()));
+        ItemStack result = recipe.get().getResultItem(level.registryAccess());
+
+        itemHandler.extractItem(INPUT_SLOT, 1, false);
+
+        itemHandler.setStackInSlot(
+                OUTPUT_SLOT,
+                new ItemStack(
+                        result.getItem(),
+                        itemHandler.getStackInSlot(OUTPUT_SLOT).getCount() + result.getCount()
+                )
+        );
+    }
+    private boolean hasRecipe() {
+        Optional<? extends AbstractCookingRecipe> recipe = getCurrentRecipe();
+
+        if (recipe.isEmpty()) return false;
+
+        ItemStack result = recipe.get().getResultItem(level.registryAccess());
+
+        return canInsertAmountIntoOutputSlot(result.getCount())
+                && canInsertItemIntoOutputSlot(result.getItem());
+    }
+    private Optional<? extends AbstractCookingRecipe> getCurrentRecipe() {
+        if (level == null) return Optional.empty();
+
+        SimpleContainer inventory = new SimpleContainer(1);
+        inventory.setItem(0, itemHandler.getStackInSlot(INPUT_SLOT));
+
+        Optional<BlastingRecipe> blasting = level.getRecipeManager()
+                .getRecipeFor(RecipeType.BLASTING, inventory, level);
+
+        if (blasting.isPresent()) return blasting;
+
+        return level.getRecipeManager()
+                .getRecipeFor(RecipeType.SMELTING, inventory, level);
+    }
+    private int getCookingTime() {
+        return getCurrentRecipe()
+                .map(recipe -> Math.max(1, recipe.getCookingTime() / 2))
+                .orElse(78);
     }
 
     private boolean hasInputItem() {
@@ -379,12 +417,6 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     }
     private boolean hasOutputItem() {
         return !this.itemHandler.getStackInSlot(OUTPUT_SLOT).isEmpty();
-    }
-    private boolean hasRecipe() {
-        boolean hasCraftingItem = this.itemHandler.getStackInSlot(INPUT_SLOT).getItem() == ModItems.FIRECLAY.get();
-        ItemStack result = new ItemStack(ModItems.FIRECLAY_BRICK.get());
-
-        return hasCraftingItem && canInsertAmountIntoOutputSlot(result.getCount()) && canInsertItemIntoOutputSlot(result.getItem());
     }
 
     private boolean canInsertItemIntoOutputSlot(Item item) {
