@@ -43,7 +43,15 @@ import java.util.List;
 
 public class KilnControllerBlockEntity extends BlockEntity implements MenuProvider {
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(2);
+    private final ItemStackHandler itemHandler = new ItemStackHandler(3) {
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            if (slot == OUTPUT_SLOT) {
+                return false;
+            }
+            return super.isItemValid(slot, stack);
+        }
+    };
     private static final int INPUT_SLOT = 0;
     private static final int FUEL_SLOT = 1;
     private static final int OUTPUT_SLOT = 2;
