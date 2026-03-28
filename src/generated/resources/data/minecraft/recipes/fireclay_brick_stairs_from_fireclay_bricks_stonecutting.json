@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "pricklensmachines:fireclay_bricks"
+  },
+  "result": "pricklensmachines:fireclay_brick_stairs"
+}
