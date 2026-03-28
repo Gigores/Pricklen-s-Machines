@@ -76,8 +76,9 @@ public class KilnControllerBlock extends BaseEntityBlock {
             } else {
                 throw new IllegalStateException("Our Container provider is missing!");
             }
+            return InteractionResult.sidedSuccess(pLevel.isClientSide);
         }
-        return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
+        return InteractionResult.sidedSuccess(pLevel.isClientSide);
     }
 
     @Override
