@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -307,13 +308,70 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         }
     }
 
-    public void clientTick(Level pLevel, BlockPos pPos, BlockState pState) {
-        if(pState.getValue(KilnControllerBlock.LIT) && level.getRandom().nextBoolean()) {
-            BlockPos smokePos = calculateRelativeBlockPos(pPos, 0, 0, 1);
+    public void clientTick(Level level, BlockPos pos, BlockState state) {
+        if (!state.getValue(KilnControllerBlock.LIT)) return;
+
+        RandomSource random = level.getRandom();
+        Direction dir = state.getValue(HorizontalDirectionalBlock.FACING);
+
+        double x = pos.getX() + 0.5;
+        double y = pos.getY() + 0.3 + random.nextDouble() * 0.4;
+        double z = pos.getZ() + 0.5;
+
+        double offset = 0.52;
+        double spread = random.nextDouble() * 0.6 - 0.3;
+
+        double px = x;
+        double pz = z;
+
+        double vx = 0;
+        double vz = 0;
+
+        double speed = 0.05;
+
+        switch (dir) {
+            case NORTH -> {
+                pz = z - offset;
+                px = x + spread;
+                vz = -speed;
+            }
+            case SOUTH -> {
+                pz = z + offset;
+                px = x + spread;
+                vz = speed;
+            }
+            case WEST -> {
+                px = x - offset;
+                pz = z + spread;
+                vx = -speed;
+            }
+            case EAST -> {
+                px = x + offset;
+                pz = z + spread;
+                vx = speed;
+            }
+        }
+        if (random.nextFloat() < 0.1f) {
+            level.addParticle(
+                    ParticleTypes.FLAME,
+                    px, y, pz,
+                    vx + random.nextGaussian() * 0.01,
+                    0.02,
+                    vz + random.nextGaussian() * 0.01
+            );
+        }
+        if (random.nextBoolean()) {
+            level.addParticle(
+                    ParticleTypes.SMOKE,
+                    px, y, pz,
+                    0.0, 0.0, 0.0
+            );
+        }
+        if (random.nextFloat() < 0.25f) {
+            var smokePos = calculateRelativeBlockPos(pos, 0, 0, 1);
             var dx = level.getRandom().nextFloat() * 0.6 - 0.3;
             var dz = level.getRandom().nextFloat() * 0.6 - 0.3;
-            pLevel.addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true, smokePos.getX() + .5f + dx, smokePos.getY() + 1, smokePos.getZ() + .5f + dz, 0, .1, 0);
-        }
+            level.addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true, smokePos.getX() + .5f + dx, smokePos.getY() + 1, smokePos.getZ() + .5f + dz, 0, .1, 0); }
     }
 
     public Direction getFacing() {
