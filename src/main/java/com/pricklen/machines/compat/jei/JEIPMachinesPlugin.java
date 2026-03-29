@@ -1,5 +1,6 @@
 package com.pricklen.machines.compat.jei;
 
+import com.pricklen.machines.ModConfig_;
 import com.pricklen.machines.PMachines;
 import com.pricklen.machines.block.ModBlocks;
 import com.pricklen.machines.recipe.KilnRecipe;
@@ -42,7 +43,10 @@ public class JEIPMachinesPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         ItemStack kiln = new ItemStack(ModBlocks.KILN.get());
         registration.addRecipeCatalyst(kiln, KilnCategory.KILN_TYPE);
-        registration.addRecipeCatalyst(kiln, mezz.jei.api.constants.RecipeTypes.SMELTING);
-        registration.addRecipeCatalyst(kiln, mezz.jei.api.constants.RecipeTypes.BLASTING);
+
+        if (ModConfig_.CONFIG.loadFurnace.get())
+            registration.addRecipeCatalyst(kiln, mezz.jei.api.constants.RecipeTypes.SMELTING);
+        if (ModConfig_.CONFIG.loadBlastFurnace.get())
+            registration.addRecipeCatalyst(kiln, mezz.jei.api.constants.RecipeTypes.BLASTING);
     }
 }

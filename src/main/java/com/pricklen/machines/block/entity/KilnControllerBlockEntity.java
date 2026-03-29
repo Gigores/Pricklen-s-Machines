@@ -1,6 +1,7 @@
 package com.pricklen.machines.block.entity;
 
 import com.mojang.logging.LogUtils;
+import com.pricklen.machines.ModConfig_;
 import com.pricklen.machines.block.*;
 import com.pricklen.machines.item.ModItems;
 import com.pricklen.machines.recipe.KilnRecipe;
@@ -471,13 +472,18 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
                 .getRecipeFor(KilnRecipe.Type.INSTANCE, inventory, level);
         if (kilnRecipe.isPresent()) return Optional.of(kilnRecipe.get());
 
-        Optional<BlastingRecipe> blasting = level.getRecipeManager()
-                .getRecipeFor(RecipeType.BLASTING, inventory, level);
-        if (blasting.isPresent()) return Optional.of(blasting.get());
+        if (ModConfig_.CONFIG.loadBlastFurnace.get()) {
+            Optional<BlastingRecipe> blasting = level.getRecipeManager()
+                    .getRecipeFor(RecipeType.BLASTING, inventory, level);
+            if (blasting.isPresent()) return Optional.of(blasting.get());
+        }
 
-        return level.getRecipeManager()
-                .getRecipeFor(RecipeType.SMELTING, inventory, level)
-                .map(r -> (Recipe<?>) r);
+        if (ModConfig_.CONFIG.loadFurnace.get()) {
+            Optional<SmeltingRecipe> smelting = level.getRecipeManager()
+                    .getRecipeFor(RecipeType.SMELTING, inventory, level);
+            if (smelting.isPresent()) return Optional.of(smelting.get());
+        }
+        return Optional.empty();
     }
     private int getCookingTime() {
         Optional<Recipe<?>> recipeOpt = getCurrentRecipe();
