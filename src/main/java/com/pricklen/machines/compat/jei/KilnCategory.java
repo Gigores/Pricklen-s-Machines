@@ -81,7 +81,9 @@ public class KilnCategory implements IRecipeCategory<KilnRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, KilnRecipe kilnRecipe, IFocusGroup iFocusGroup) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addIngredients(kilnRecipe.getIngredients().get(0));
+        var inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 1);
+        for (var ingredient : kilnRecipe.getIngredients())
+            inputSlot.addIngredients(ingredient);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 19).addItemStack(kilnRecipe.getResultItem(null));
     }
 
