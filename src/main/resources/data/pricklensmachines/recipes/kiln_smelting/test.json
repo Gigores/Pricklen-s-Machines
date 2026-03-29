@@ -5,6 +5,7 @@
       "item": "minecraft:redstone"
     }
   ],
+  "time": 400,
   "result": {
     "item": "minecraft:glowstone_dust"
   }

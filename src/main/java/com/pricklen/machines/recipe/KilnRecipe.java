@@ -19,11 +19,11 @@ public class KilnRecipe implements Recipe<SimpleContainer> {
     private final ResourceLocation id;
     private int time;
 
-    public KilnRecipe(NonNullList<Ingredient> inputItems, ItemStack output, ResourceLocation id) {
+    public KilnRecipe(NonNullList<Ingredient> inputItems, ItemStack output, ResourceLocation id, int time) {
         this.inputItems = inputItems;
         this.output = output;
         this.id = id;
-        this.time = 200;
+        this.time = time;
     }
 
     @Override
@@ -82,23 +82,26 @@ public class KilnRecipe implements Recipe<SimpleContainer> {
         public KilnRecipe fromJson(ResourceLocation pRecipeId, JsonObject pSerializedRecipe) {
             var output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(pSerializedRecipe, "result"));
             var ingredients = GsonHelper.getAsJsonArray(pSerializedRecipe, "ingredients");
+            var time = GsonHelper.getAsInt(pSerializedRecipe, "time");
             var inputs = NonNullList.withSize(1, Ingredient.EMPTY);
             for (int i = 0; i < inputs.size(); i++)
                 inputs.set(i, Ingredient.fromJson(ingredients.get(i)));
-            return new KilnRecipe(inputs, output, pRecipeId);
+            return new KilnRecipe(inputs, output, pRecipeId, time);
         }
 
         @Override
         public @Nullable KilnRecipe fromNetwork(ResourceLocation pRecipeId, FriendlyByteBuf pBuffer) {
+            var time = pBuffer.readInt();
             var inputs = NonNullList.withSize(pBuffer.readInt(), Ingredient.EMPTY);
             for (int i = 0; i < inputs.size(); i++)
                 inputs.set(i, Ingredient.fromNetwork(pBuffer));
             var output = pBuffer.readItem();
-            return new KilnRecipe(inputs, output, pRecipeId);
+            return new KilnRecipe(inputs, output, pRecipeId, time);
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf pBuffer, KilnRecipe pRecipe) {
+            pBuffer.writeInt(pRecipe.getTime());
             pBuffer.writeInt(pRecipe.inputItems.size());
 
             for (var ingredient : pRecipe.getIngredients())

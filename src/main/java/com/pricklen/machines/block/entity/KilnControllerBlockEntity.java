@@ -487,7 +487,7 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         Recipe<?> recipe = recipeOpt.get();
 
         if (recipe instanceof KilnRecipe kiln) {
-            return Math.max(1, kiln.getTime() / 2);
+            return Math.max(1, kiln.getTime());
         }
 
         if (recipe instanceof AbstractCookingRecipe cooking) {
