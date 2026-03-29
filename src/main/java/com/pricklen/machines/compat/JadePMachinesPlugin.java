@@ -19,24 +19,13 @@ public class JadePMachinesPlugin implements IWailaPlugin {
 
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerItemStorage(KilnExtensionProvider.INSTANCE, KilnControllerBlockEntity.class);
         registration.registerBlockDataProvider(KilnComponentProvider.INSTANCE, KilnControllerBlockEntity.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.addRayTraceCallback(-10, JadeClient::builtInOverrides);
-        registration.addRayTraceCallback(-100, (hit, accessor, original) -> {
-            if (accessor instanceof BlockAccessor block) {
-                if (block.getBlock() instanceof KilnControllerBlock) {
-
-                    return registration.blockAccessor()
-                            .from(block)
-                            .blockState(block.getBlock().defaultBlockState())
-                            .build();
-                }
-            }
-            return accessor;
-        });
+        registration.registerItemStorageClient(KilnExtensionProvider.INSTANCE);
         registration.registerBlockComponent(KilnComponentProvider.INSTANCE, KilnControllerBlock.class);
     }
 }

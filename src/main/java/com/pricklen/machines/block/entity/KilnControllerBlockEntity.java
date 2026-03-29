@@ -370,14 +370,14 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
                     vz + random.nextGaussian() * 0.01
             );
         }
-        if (random.nextBoolean()) {
+        if (random.nextFloat() < 0.15f) {
             level.addParticle(
                     ParticleTypes.SMOKE,
                     px, y, pz,
                     0.0, 0.0, 0.0
             );
         }
-        if (random.nextFloat() < 0.25f) {
+        if (random.nextFloat() < 0.15f) {
             var smokePos = calculateRelativeBlockPos(pos, 0, 0, 1);
             var dx = level.getRandom().nextFloat() * 0.6 - 0.3;
             var dz = level.getRandom().nextFloat() * 0.6 - 0.3;
