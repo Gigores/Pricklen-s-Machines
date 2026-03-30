@@ -554,11 +554,9 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
 
     private void increaseCraftingProgress(int kilnLevel) {
         progress += (float) Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS);
-        System.out.println("prog " + Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS));
     }
     private void decreaseFuel(int kilnLevel) {
         fuel -= 0.5f + (float) Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS);
-        System.out.println("fuel " + (0.5f + Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS)));
     }
     public ItemStackHandler getItemHandler() {
         return itemHandler;

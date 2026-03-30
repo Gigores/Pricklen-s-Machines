@@ -44,9 +44,9 @@ public class KilnScreen extends AbstractContainerScreen<KilnMenu> {
                 guiGraphics.blit(
                         TEXTURE,
                         x + 56,
-                        y + 36 + (14 - fuel), // сдвиг вниз
+                        y + 36 + (14 - fuel),
                         176,
-                        14 - fuel,            // берём нижнюю часть текстуры
+                        14 - fuel,
                         17,
                         fuel
                 );
