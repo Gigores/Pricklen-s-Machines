@@ -24,6 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CherryLeavesBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,6 +41,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import static com.pricklen.machines.block.HatchMode.INPUT;
+import static com.pricklen.machines.block.HatchMode.OUTPUT;
 
 public class KilnControllerBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -59,22 +64,26 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     private static final int FUEL_SLOT = 1;
     private static final int OUTPUT_SLOT = 2;
 
+    private static final int MIN_LAYERS = 3;
+    private static final int MAX_LAYERS = 6;
+    private static final float LEVEL_FACTOR = 1.2f;
+
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     protected final ContainerData data;
 
-    public int getProgress() {
+    public float getProgress() {
         return progress;
     }
 
-    private int progress = 0;
+    private float progress = 0;
 
     public int getMaxProgress() {
         return maxProgress;
     }
 
     private int maxProgress = 78;
-    private int fuel = 0;
+    private float fuel = 0;
     private int maxFuel = 1;
 
     public KilnControllerBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -83,9 +92,9 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             @Override
             public int get(int pIndex) {
                 return switch (pIndex) {
-                    case 0 -> KilnControllerBlockEntity.this.progress;
+                    case 0 -> (int) KilnControllerBlockEntity.this.progress;
                     case 1 -> KilnControllerBlockEntity.this.maxProgress;
-                    case 2 -> KilnControllerBlockEntity.this.fuel;
+                    case 2 -> (int) KilnControllerBlockEntity.this.fuel;
                     case 3 -> KilnControllerBlockEntity.this.maxFuel;
                     default -> throw new IllegalStateException("Bad index: " + pIndex);
                 };
@@ -157,8 +166,8 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     @Override
     protected void saveAdditional(CompoundTag pTag) {
         pTag.put("inventory", itemHandler.serializeNBT());
-        pTag.putInt("kiln_controller.progress", progress);
-        pTag.putInt("kiln_controller.fuel", fuel);
+        pTag.putFloat("kiln_controller.progress", progress);
+        pTag.putFloat("kiln_controller.fuel", fuel);
         pTag.putInt("kiln_controller.max_fuel", maxFuel);
         super.saveAdditional(pTag);
     }
@@ -166,16 +175,17 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     public void load(CompoundTag pTag) {
         super.load(pTag);
         itemHandler.deserializeNBT(pTag.getCompound("inventory"));
-        progress = pTag.getInt("kiln_controller.progress");
-        fuel = pTag.getInt("kiln_controller.fuel");
+        progress = pTag.getFloat("kiln_controller.progress");
+        fuel = pTag.getFloat("kiln_controller.fuel");
         maxFuel = pTag.getInt("kiln_controller.max_fuel");
     }
 
     public void serverTick(Level level, BlockPos pos, BlockState state) {
 
         var structure = checkStructure(pos);
+//        System.out.println(structure.level());
 
-        if (structure.isValid()) {
+        if (structure.isCraftable()) {
             if (!hasInputItem())
                 pullFromHatches(structure.inputHatches());
             if (hasOutputItem())
@@ -183,21 +193,21 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         }
 
         if (isBurning()) {
-            fuel--;
+            decreaseFuel(structure.level());
         }
-        if (!isBurning() && hasRecipe() && hasFuelItem() && structure.isValid()) {
+        if (!isBurning() && hasRecipe() && hasFuelItem() && structure.isCraftable()) {
             consumeFuel();
         }
-        if (isBurning() && !structure.isValid()) {
+        if (isBurning() && !structure.isCraftable()) {
             fuel = 0;
         }
 
-        boolean valid = structure.isValid() && hasRecipe();
+        boolean valid = structure.isCraftable() && hasRecipe();
         boolean canWork = valid && isBurning();
 
         if (canWork) {
             maxProgress = getCookingTime();
-            increaseCraftingProgress();
+            increaseCraftingProgress(structure.level());
             setChanged(level, pos, state);
             if (hasProgressFinished()) {
                 craftItem();
@@ -406,11 +416,10 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             default -> pos;
         };
     }
-
-    private StructureStatus checkStructure(BlockPos pos) {
+    private StructureStatus checkStructurePart(BlockPos pos, StructurePart[] structureParts) {
         var inputHatches = new ArrayList<BlockPos>();
         var outputHatches = new ArrayList<BlockPos>();
-        for (StructurePart part : STRUCTURE) {
+        for (StructurePart part : structureParts) {
             BlockPos target = calculateRelativeBlockPos(pos, part.x, part.y, part.z);
             var blockState = level.getBlockState(target);
             if (!blockState.is(part.block)) {
@@ -422,10 +431,31 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
                     }
                     continue;
                 }
-                return new StructureStatus(false, new ArrayList<>(), new ArrayList<>());
+                return new StructureStatus(0, new ArrayList<>(), new ArrayList<>());
             }
         }
-        return new StructureStatus(true, inputHatches, outputHatches);
+        return new StructureStatus(1, inputHatches, outputHatches);
+    }
+    private StructureStatus checkStructure(BlockPos pos) {
+        var inputHatches = new ArrayList<BlockPos>();
+        var outputHatches = new ArrayList<BlockPos>();
+        var kilnLevel = 0;
+
+        var baseStatus = checkStructurePart(pos, BASE_STRUCTURE);
+        if (!baseStatus.isValid()) return new StructureStatus(0, new ArrayList<>(), new ArrayList<>());
+        var dY = 1;
+        while (dY <= MAX_LAYERS) {
+            var layerStatus = checkStructurePart(pos.atY(pos.getY() + dY), LAYER_STRUCTURE);
+            if (layerStatus.isValid()) {
+                kilnLevel++;
+                dY++;
+                inputHatches.addAll(layerStatus.inputHatches());
+                outputHatches.addAll(layerStatus.outputHatches());
+            } else {
+                break;
+            }
+        }
+        return new StructureStatus(kilnLevel, inputHatches, outputHatches);
     }
 //    private boolean check(Level level, BlockPos origin, int dx, int dy, int dz, Block expected) {
 //        BlockPos checkPos = calculateRelativeBlockPos(origin, dx, dy, dz);
@@ -522,8 +552,13 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         return progress >= maxProgress;
     }
 
-    private void increaseCraftingProgress() {
-        progress++;
+    private void increaseCraftingProgress(int kilnLevel) {
+        progress += (float) Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS);
+        System.out.println("prog " + Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS));
+    }
+    private void decreaseFuel(int kilnLevel) {
+        fuel -= 0.5f + (float) Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS);
+        System.out.println("fuel " + (0.5f + Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS)));
     }
     public ItemStackHandler getItemHandler() {
         return itemHandler;
@@ -532,7 +567,18 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     private record StructurePart(int x, int y, int z, Block block) {}
 
     private static final Block HATCH_BLOCK = ModBlocks.KILN_HATCH.get();
-    private static final StructurePart[] STRUCTURE = new StructurePart[] {
+    private static final StructurePart[] BASE_STRUCTURE = new StructurePart[] {
+            new StructurePart(-1, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(0, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(0, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+//            new StructurePart(0, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+    };
+    private static final StructurePart[] LAYER_STRUCTURE = new StructurePart[] {
             /*
             ...
             WBW
@@ -555,42 +601,22 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             W - ModBlocks.FIRECLAY_BRICK_WALL
             M - this
             */
-            new StructurePart(-1, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(-1, 0, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
             new StructurePart(0, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 0, 2, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
             new StructurePart(-1, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(0, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(0, 0, 1, Blocks.AIR),
             new StructurePart(1, 0, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(-1, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
-//            new StructurePart(0, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
-
-            new StructurePart(-1, 1, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(0, 1, 2, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 1, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(-1, 1, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 1, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(-1, 1, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(0, 1, 0, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 1, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-
-            new StructurePart(-1, 2, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(0, 2, 2, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 2, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(-1, 2, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 2, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(-1, 2, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(0, 2, 0, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 2, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-
-            new StructurePart(-1, 3, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(0, 3, 2, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 3, 2, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(-1, 3, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 3, 1, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(-1, 3, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
-            new StructurePart(0, 3, 0, ModBlocks.FIRECLAY_BRICKS.get()),
-            new StructurePart(1, 3, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(-1, 0, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
+            new StructurePart(0, 0, 0, ModBlocks.FIRECLAY_BRICKS.get()),
+            new StructurePart(1, 0, 0, ModBlocks.FIRECLAY_BRICK_WALL.get()),
     };
-    private record StructureStatus(boolean isValid, List<BlockPos> inputHatches, List<BlockPos> outputHatches) {}
+    private record StructureStatus(int level, List<BlockPos> inputHatches, List<BlockPos> outputHatches) {
+        public boolean isValid() {
+            return level > 0;
+        }
+        public boolean isCraftable() {
+            return level >= MIN_LAYERS && level <= MAX_LAYERS;
+        }
+    }
 }

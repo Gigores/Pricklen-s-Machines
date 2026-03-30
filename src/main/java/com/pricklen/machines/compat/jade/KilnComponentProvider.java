@@ -43,10 +43,10 @@ public enum KilnComponentProvider implements IBlockComponentProvider, IServerDat
             }
         }
 
-        var prog = data.getInt("prog");
+        var prog = data.getFloat("prog");
         var max = data.getInt("mprog");
 
-        var progress = max == 0 ? 0 : (float) prog / max;
+        var progress = max == 0 ? 0 : prog / max;
 
         tooltip.add(elements.item(input));
         tooltip.append(elements.item(fuel));
@@ -78,7 +78,7 @@ public enum KilnComponentProvider implements IBlockComponentProvider, IServerDat
         }
 
         tag.put("inventory", list);
-        tag.putInt("prog", kiln.getProgress());
+        tag.putFloat("prog", kiln.getProgress());
         tag.putInt("mprog", kiln.getMaxProgress());
     }
 }
