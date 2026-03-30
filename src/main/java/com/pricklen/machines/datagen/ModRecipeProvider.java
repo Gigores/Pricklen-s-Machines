@@ -35,6 +35,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get(),
                 "cracked_fireclay_bricks"
         );
+        blockSet(
+                pWriter,
+                ModBlocks.MOSSY_FIRECLAY_BRICKS.get(),
+                ModBlocks.MOSSY_FIRECLAY_BRICK_SLAB.get(),
+                ModBlocks.MOSSY_FIRECLAY_BRICK_WALL.get(),
+                ModBlocks.MOSSY_FIRECLAY_BRICK_STAIRS.get(),
+                "mossy_fireclay_bricks"
+        );
     }
     protected void blockSet(Consumer<FinishedRecipe> pWriter, Block full, Block slab, Block wall, Block stairs, String name) {
         stairBuilder(stairs, Ingredient.of(full)).unlockedBy("has_" + name, has(full)).save(pWriter);

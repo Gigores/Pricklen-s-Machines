@@ -29,6 +29,10 @@ public class ModItemModelProvider extends ItemModelProvider {
         wallItem(ModBlocks.CRACKED_FIRECLAY_BRICK_WALL, ModBlocks.CRACKED_FIRECLAY_BRICKS);
         evenSimplerBlockItem(ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS);
         evenSimplerBlockItem(ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB);
+        wallItem(ModBlocks.MOSSY_FIRECLAY_BRICK_WALL, ModBlocks.MOSSY_FIRECLAY_BRICKS);
+        evenSimplerBlockItem(ModBlocks.MOSSY_FIRECLAY_BRICK_STAIRS);
+        evenSimplerBlockItem(ModBlocks.MOSSY_FIRECLAY_BRICK_SLAB);
+
         evenSimplerBlockItem(ModBlocks.KILN);
         evenSimplerBlockItem(ModBlocks.KILN_HATCH);
     }

@@ -34,6 +34,9 @@ public class ModBlockLootTables extends BlockLootSubProvider {
         this.dropSelf(ModBlocks.CRACKED_FIRECLAY_BRICKS.get());
         this.dropSelf(ModBlocks.CRACKED_FIRECLAY_BRICK_WALL.get());
         this.dropSelf(ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get());
+        this.dropSelf(ModBlocks.MOSSY_FIRECLAY_BRICKS.get());
+        this.dropSelf(ModBlocks.MOSSY_FIRECLAY_BRICK_WALL.get());
+        this.dropSelf(ModBlocks.MOSSY_FIRECLAY_BRICK_STAIRS.get());
         this.dropSelf(ModBlocks.KILN.get());
         this.dropSelf(ModBlocks.KILN_HATCH.get());
 
@@ -47,6 +50,7 @@ public class ModBlockLootTables extends BlockLootSubProvider {
         );
         this.add(ModBlocks.FIRECLAY_BRICK_SLAB.get(), block -> createSlabItemTable(ModBlocks.FIRECLAY_BRICK_SLAB.get()));
         this.add(ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get(), block -> createSlabItemTable(ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get()));
+        this.add(ModBlocks.MOSSY_FIRECLAY_BRICK_SLAB.get(), block -> createSlabItemTable(ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get()));
     }
 
     @Override

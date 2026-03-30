@@ -31,6 +31,10 @@ public class ModCreativeModeTabs {
                         pOutput.accept(ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get());
                         pOutput.accept(ModBlocks.CRACKED_FIRECLAY_BRICK_WALL.get());
                         pOutput.accept(ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get());
+                        pOutput.accept(ModBlocks.MOSSY_FIRECLAY_BRICKS.get());
+                        pOutput.accept(ModBlocks.MOSSY_FIRECLAY_BRICK_STAIRS.get());
+                        pOutput.accept(ModBlocks.MOSSY_FIRECLAY_BRICK_WALL.get());
+                        pOutput.accept(ModBlocks.MOSSY_FIRECLAY_BRICK_SLAB.get());
                         pOutput.accept(ModBlocks.KILN.get());
                         pOutput.accept(ModBlocks.KILN_HATCH.get());
                     })
