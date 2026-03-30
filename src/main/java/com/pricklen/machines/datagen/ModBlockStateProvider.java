@@ -26,10 +26,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
     protected void registerStatesAndModels() {
         blockWithItem(ModBlocks.FIRECLAY_BLOCK);
         blockWithItem(ModBlocks.FIRECLAY_BRICKS);
+        blockWithItem(ModBlocks.CRACKED_FIRECLAY_BRICKS);
 
         stairsBlock(((StairBlock) ModBlocks.FIRECLAY_BRICK_STAIRS.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()));
         slabBlock(((SlabBlock) ModBlocks.FIRECLAY_BRICK_SLAB.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()));
         wallBlock(((WallBlock) ModBlocks.FIRECLAY_BRICK_WALL.get()), blockTexture(ModBlocks.FIRECLAY_BRICKS.get()));
+
+        stairsBlock(((StairBlock) ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get()), blockTexture(ModBlocks.CRACKED_FIRECLAY_BRICKS.get()));
+        slabBlock(((SlabBlock) ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get()), blockTexture(ModBlocks.CRACKED_FIRECLAY_BRICKS.get()), blockTexture(ModBlocks.CRACKED_FIRECLAY_BRICKS.get()));
+        wallBlock(((WallBlock) ModBlocks.CRACKED_FIRECLAY_BRICK_WALL.get()), blockTexture(ModBlocks.CRACKED_FIRECLAY_BRICKS.get()));
 
         getVariantBuilder(ModBlocks.KILN.get()).forAllStates(state -> {
             boolean lit = state.getValue(KilnControllerBlock.LIT);

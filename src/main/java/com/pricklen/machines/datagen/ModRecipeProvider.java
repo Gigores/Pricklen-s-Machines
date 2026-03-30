@@ -7,6 +7,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
 
 import java.util.function.Consumer;
@@ -18,27 +19,45 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> pWriter) {
-        stairBuilder(ModBlocks.FIRECLAY_BRICK_STAIRS.get(), Ingredient.of(ModBlocks.FIRECLAY_BRICKS.get())).unlockedBy("has_fireclay_bricks", has(ModBlocks.FIRECLAY_BRICKS.get())).save(pWriter);
-        slabBuilder(RecipeCategory.BUILDING_BLOCKS, ModBlocks.FIRECLAY_BRICK_SLAB.get(), Ingredient.of(ModBlocks.FIRECLAY_BRICKS.get())).unlockedBy("has_fireclay_bricks", has(ModBlocks.FIRECLAY_BRICKS.get())).save(pWriter);
-        wallBuilder(RecipeCategory.BUILDING_BLOCKS, ModBlocks.FIRECLAY_BRICK_WALL.get(), Ingredient.of(ModBlocks.FIRECLAY_BRICKS.get())).unlockedBy("has_fireclay_bricks", has(ModBlocks.FIRECLAY_BRICKS.get())).save(pWriter);
+        blockSet(
+                pWriter,
+                ModBlocks.FIRECLAY_BRICKS.get(),
+                ModBlocks.FIRECLAY_BRICK_SLAB.get(),
+                ModBlocks.FIRECLAY_BRICK_WALL.get(),
+                ModBlocks.FIRECLAY_BRICK_STAIRS.get(),
+                "fireclay_bricks"
+        );
+        blockSet(
+                pWriter,
+                ModBlocks.CRACKED_FIRECLAY_BRICKS.get(),
+                ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get(),
+                ModBlocks.CRACKED_FIRECLAY_BRICK_WALL.get(),
+                ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get(),
+                "cracked_fireclay_bricks"
+        );
+    }
+    protected void blockSet(Consumer<FinishedRecipe> pWriter, Block full, Block slab, Block wall, Block stairs, String name) {
+        stairBuilder(stairs, Ingredient.of(full)).unlockedBy("has_" + name, has(full)).save(pWriter);
+        slabBuilder(RecipeCategory.BUILDING_BLOCKS, slab, Ingredient.of(full)).unlockedBy("has_" + name, has(full)).save(pWriter);
+        wallBuilder(RecipeCategory.BUILDING_BLOCKS, wall, Ingredient.of(full)).unlockedBy("has_" + name, has(full)).save(pWriter);
         stonecutterResultFromBase(
                 pWriter,
                 RecipeCategory.BUILDING_BLOCKS,
-                ModBlocks.FIRECLAY_BRICK_STAIRS.get(),
-                ModBlocks.FIRECLAY_BRICKS.get()
+                stairs,
+                full
         );
         stonecutterResultFromBase(
                 pWriter,
                 RecipeCategory.BUILDING_BLOCKS,
-                ModBlocks.FIRECLAY_BRICK_SLAB.get(),
-                ModBlocks.FIRECLAY_BRICKS.get(),
+                slab,
+                full,
                 2
         );
         stonecutterResultFromBase(
                 pWriter,
                 RecipeCategory.BUILDING_BLOCKS,
-                ModBlocks.FIRECLAY_BRICK_WALL.get(),
-                ModBlocks.FIRECLAY_BRICKS.get()
+                wall,
+                full
         );
     }
 }

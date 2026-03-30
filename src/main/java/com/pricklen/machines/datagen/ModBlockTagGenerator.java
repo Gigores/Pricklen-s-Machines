@@ -24,6 +24,10 @@ public class ModBlockTagGenerator extends BlockTagsProvider {
                         ModBlocks.FIRECLAY_BRICK_SLAB.get(),
                         ModBlocks.FIRECLAY_BRICK_STAIRS.get(),
                         ModBlocks.FIRECLAY_BRICK_WALL.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICKS.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICK_WALL.get(),
                         ModBlocks.KILN.get(),
                         ModBlocks.KILN_HATCH.get()
                 );
@@ -34,6 +38,10 @@ public class ModBlockTagGenerator extends BlockTagsProvider {
                         ModBlocks.FIRECLAY_BRICK_SLAB.get(),
                         ModBlocks.FIRECLAY_BRICK_STAIRS.get(),
                         ModBlocks.FIRECLAY_BRICK_WALL.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICKS.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICK_SLAB.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICK_STAIRS.get(),
+                        ModBlocks.CRACKED_FIRECLAY_BRICK_WALL.get(),
                         ModBlocks.KILN.get(),
                         ModBlocks.KILN_HATCH.get()
                 );

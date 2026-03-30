@@ -6,5 +6,4 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 public class ModTags {
-    public static class Items { }
-}
+    public static class Items { } }

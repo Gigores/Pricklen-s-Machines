@@ -32,6 +32,18 @@ public class ModBlocks {
     public static final RegistryObject<Block> FIRECLAY_BLOCK = registerBlock("fireclay_block",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.CLAY))
     );
+    public static final RegistryObject<Block> CRACKED_FIRECLAY_BRICKS = registerBlock("cracked_fireclay_bricks",
+            () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS))
+    );
+    public static final RegistryObject<Block> CRACKED_FIRECLAY_BRICK_STAIRS = registerBlock("cracked_fireclay_brick_stairs",
+            () -> new StairBlock(() -> ModBlocks.CRACKED_FIRECLAY_BRICKS.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS))
+    );
+    public static final RegistryObject<Block> CRACKED_FIRECLAY_BRICK_SLAB = registerBlock("cracked_fireclay_brick_slab",
+            () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS))
+    );
+    public static final RegistryObject<Block> CRACKED_FIRECLAY_BRICK_WALL = registerBlock("cracked_fireclay_brick_wall",
+            () -> new WallBlock(BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS))
+    );
     public static final RegistryObject<Block> KILN = registerBlock("kiln_controller",
             () -> new KilnControllerBlock(
                     BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS)
