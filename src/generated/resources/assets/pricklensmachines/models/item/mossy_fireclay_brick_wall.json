@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_inventory",
+  "textures": {
+    "wall": "pricklensmachines:block/mossy_fireclay_bricks"
+  }
+}

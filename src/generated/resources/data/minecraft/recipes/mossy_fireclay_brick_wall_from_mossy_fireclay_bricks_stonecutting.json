@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "pricklensmachines:mossy_fireclay_bricks"
+  },
+  "result": "pricklensmachines:mossy_fireclay_brick_wall"
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "pricklensmachines:block/mossy_fireclay_bricks",
+    "side": "pricklensmachines:block/mossy_fireclay_bricks",
+    "top": "pricklensmachines:block/mossy_fireclay_bricks"
+  }
+}
