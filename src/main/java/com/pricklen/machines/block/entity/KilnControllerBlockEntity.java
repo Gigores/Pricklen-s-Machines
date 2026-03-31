@@ -443,6 +443,8 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
 
         var baseStatus = checkStructurePart(pos, BASE_STRUCTURE);
         if (!baseStatus.isValid()) return new StructureStatus(0, new ArrayList<>(), new ArrayList<>());
+        inputHatches.addAll(baseStatus.inputHatches());
+        outputHatches.addAll(baseStatus.outputHatches());
         var dY = 1;
         while (dY <= MAX_LAYERS) {
             var layerStatus = checkStructurePart(pos.atY(pos.getY() + dY), LAYER_STRUCTURE);
