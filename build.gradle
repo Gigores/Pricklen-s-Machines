@@ -180,16 +180,12 @@ dependencies {
     implementation fg.deobf("maven.modrinth:jade:${jade_version}")
 
     implementation fg.deobf("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
-    jarJar("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:[1.0,2.0)") {
-        version {
-            prefer "${flywheel_version}"
-        }
+    jarJar("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:[${flywheel_version},)") {
+        jarJar.pin(it, "${flywheel_version}")
     }
     implementation fg.deobf("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
-    jarJar("net.createmod.ponder:Ponder-Forge-${minecraft_version}:[1.0,2.0)") {
-        version {
-            prefer "${ponder_version}"
-        }
+    jarJar("net.createmod.ponder:Ponder-Forge-${minecraft_version}:[${ponder_version},)") {
+        jarJar.pin(it, "${ponder_version}")
     }
 }
 
