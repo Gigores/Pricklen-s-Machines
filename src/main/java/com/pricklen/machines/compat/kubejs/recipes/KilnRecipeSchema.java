@@ -10,7 +10,7 @@ import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 public interface KilnRecipeSchema {
     RecipeKey<OutputItem> RESULTS = ItemComponents.OUTPUT.key("result");
     RecipeKey<InputItem[]> INGREDIENTS = ItemComponents.INPUT_ARRAY.key("ingredients");
-    RecipeKey<Long> TIME = TimeComponent.TICKS.key("time").optional(100L);
+    RecipeKey<Long> TIME = TimeComponent.TICKS.key("time");
 
     RecipeSchema DEFAULT = new RecipeSchema(RESULTS, INGREDIENTS, TIME);
 }
