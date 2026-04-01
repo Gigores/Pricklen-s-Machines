@@ -2,6 +2,8 @@ package com.pricklen.machines.recipe;
 
 import com.google.gson.JsonObject;
 import com.pricklen.machines.PMachines;
+import dev.latvian.mods.kubejs.item.InputItem;
+import dev.latvian.mods.kubejs.item.OutputItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,6 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+
+import javax.print.attribute.standard.PrinterMakeAndModel;
+import java.util.Arrays;
 
 public class KilnRecipe implements Recipe<SimpleContainer> {
     private final NonNullList<Ingredient> inputItems;
@@ -25,6 +30,14 @@ public class KilnRecipe implements Recipe<SimpleContainer> {
         this.id = id;
         this.time = time;
     }
+//    public KilnRecipe(OutputItem result, InputItem[] inputItems) {
+//        this.output = result.item;
+//        this.inputItems = NonNullList.withSize(inputItems.length, Ingredient.EMPTY);
+//        for (int i = 0; i < inputItems.length; i++)
+//            this.inputItems.set(i, (inputItems[i].ingredient));
+//        this.id = new ResourceLocation(PMachines.MODID + ":" + ModRecipes.KILN_SERIALIZER.getId() + "/" + result.item);
+//        this.time = 100;
+//    }
 
     @Override
     public boolean matches(SimpleContainer pContainer, Level pLevel) {
