@@ -1,5 +1,5 @@
 <p align="center"><img src="./src/main/resources/icon.png" alt="Logo" width="200"></p>
-<h1 align="center">Pricklen’s Machines</h1>
+<h1 align="center">Priklen’s Machines</h1>
 
 *Pricklen’s Machines* is a small mod that adds a bunch (only one for now) of machines, that bring new ways of crafting to Minecraft!
 
