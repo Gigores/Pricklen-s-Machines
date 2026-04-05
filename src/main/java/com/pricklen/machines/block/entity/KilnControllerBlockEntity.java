@@ -57,7 +57,6 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     private static final int FUEL_SLOT = 1;
     private static final int OUTPUT_SLOT = 2;
 
-    private static final int MIN_LAYERS = 3;
     private static final float LEVEL_FACTOR = 1.2f;
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -547,10 +546,10 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     private void increaseCraftingProgress(int kilnLevel) {
-        progress += (float) Math.pow(LEVEL_FACTOR, kilnLevel - ModConfig_.CONFIG.kilnMinLevels.get());
+        progress += (float) Math.pow(ModConfig_.CONFIG.kilnLevelFactor.get(), kilnLevel - ModConfig_.CONFIG.kilnMinLevels.get());
     }
     private void decreaseFuel(int kilnLevel) {
-        fuel -= 0.5f + (float) Math.pow(LEVEL_FACTOR, kilnLevel - ModConfig_.CONFIG.kilnMinLevels.get());
+        fuel -= 0.5f + (float) Math.pow(ModConfig_.CONFIG.kilnLevelFactor.get(), kilnLevel - ModConfig_.CONFIG.kilnMinLevels.get());
     }
     public ItemStackHandler getItemHandler() {
         return itemHandler;

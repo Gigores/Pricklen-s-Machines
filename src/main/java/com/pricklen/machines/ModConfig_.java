@@ -12,6 +12,7 @@ public class ModConfig_ {
     public final ForgeConfigSpec.BooleanValue kilnLoadBlastFurnace;
     public final ForgeConfigSpec.IntValue kilnMaxLevels;
     public final ForgeConfigSpec.IntValue kilnMinLevels;
+    public final ForgeConfigSpec.DoubleValue kilnLevelFactor;
 
     static {
         Pair<ModConfig_, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
@@ -27,6 +28,7 @@ public class ModConfig_ {
         kilnLoadBlastFurnace = builder.define("useBlastFurnaceRecipes", true);
         kilnMaxLevels = builder.defineInRange("maxLayers", 6, 1, Integer.MAX_VALUE);
         kilnMinLevels = builder.defineInRange("minLayers", 3, 1, Integer.MAX_VALUE);
+        kilnLevelFactor = builder.defineInRange("layerFactor", 1.2d, 1.0d, 8.0d);
 
         builder.pop();
     }
