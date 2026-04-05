@@ -1,9 +1,7 @@
 package com.pricklen.machines.block.entity;
 
-import com.mojang.logging.LogUtils;
 import com.pricklen.machines.ModConfig_;
 import com.pricklen.machines.block.*;
-import com.pricklen.machines.item.ModItems;
 import com.pricklen.machines.recipe.KilnRecipe;
 import com.pricklen.machines.screen.KilnMenu;
 import net.minecraft.core.BlockPos;
@@ -25,11 +23,9 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CherryLeavesBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -41,9 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-
-import static com.pricklen.machines.block.HatchMode.INPUT;
-import static com.pricklen.machines.block.HatchMode.OUTPUT;
 
 public class KilnControllerBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -65,7 +58,6 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     private static final int OUTPUT_SLOT = 2;
 
     private static final int MIN_LAYERS = 3;
-    private static final int MAX_LAYERS = 6;
     private static final float LEVEL_FACTOR = 1.2f;
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -446,7 +438,7 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
         inputHatches.addAll(baseStatus.inputHatches());
         outputHatches.addAll(baseStatus.outputHatches());
         var dY = 1;
-        while (dY <= MAX_LAYERS) {
+        while (dY <= ModConfig_.CONFIG.kilnMaxLevels.get()) {
             var layerStatus = checkStructurePart(pos.atY(pos.getY() + dY), LAYER_STRUCTURE);
             if (layerStatus.isValid()) {
                 kilnLevel++;
@@ -504,13 +496,13 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
                 .getRecipeFor(KilnRecipe.Type.INSTANCE, inventory, level);
         if (kilnRecipe.isPresent()) return Optional.of(kilnRecipe.get());
 
-        if (ModConfig_.CONFIG.loadBlastFurnace.get()) {
+        if (ModConfig_.CONFIG.kilnLoadBlastFurnace.get()) {
             Optional<BlastingRecipe> blasting = level.getRecipeManager()
                     .getRecipeFor(RecipeType.BLASTING, inventory, level);
             if (blasting.isPresent()) return Optional.of(blasting.get());
         }
 
-        if (ModConfig_.CONFIG.loadFurnace.get()) {
+        if (ModConfig_.CONFIG.kilnLoadFurnace.get()) {
             Optional<SmeltingRecipe> smelting = level.getRecipeManager()
                     .getRecipeFor(RecipeType.SMELTING, inventory, level);
             if (smelting.isPresent()) return Optional.of(smelting.get());
@@ -555,10 +547,10 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     private void increaseCraftingProgress(int kilnLevel) {
-        progress += (float) Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS);
+        progress += (float) Math.pow(LEVEL_FACTOR, kilnLevel - ModConfig_.CONFIG.kilnMinLevels.get());
     }
     private void decreaseFuel(int kilnLevel) {
-        fuel -= 0.5f + (float) Math.pow(LEVEL_FACTOR, kilnLevel - MIN_LAYERS);
+        fuel -= 0.5f + (float) Math.pow(LEVEL_FACTOR, kilnLevel - ModConfig_.CONFIG.kilnMinLevels.get());
     }
     public ItemStackHandler getItemHandler() {
         return itemHandler;
@@ -616,7 +608,7 @@ public class KilnControllerBlockEntity extends BlockEntity implements MenuProvid
             return level > 0;
         }
         public boolean isCraftable() {
-            return level >= MIN_LAYERS && level <= MAX_LAYERS;
+            return level >= ModConfig_.CONFIG.kilnMinLevels.get() && level <= ModConfig_.CONFIG.kilnMaxLevels.get();
         }
     }
 }

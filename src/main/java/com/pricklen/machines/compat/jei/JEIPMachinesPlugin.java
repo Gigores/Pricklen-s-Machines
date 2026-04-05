@@ -44,9 +44,9 @@ public class JEIPMachinesPlugin implements IModPlugin {
         ItemStack kiln = new ItemStack(ModBlocks.KILN.get());
         registration.addRecipeCatalyst(kiln, KilnCategory.KILN_TYPE);
 
-        if (ModConfig_.CONFIG.loadFurnace.get())
+        if (ModConfig_.CONFIG.kilnLoadFurnace.get())
             registration.addRecipeCatalyst(kiln, mezz.jei.api.constants.RecipeTypes.SMELTING);
-        if (ModConfig_.CONFIG.loadBlastFurnace.get())
+        if (ModConfig_.CONFIG.kilnLoadBlastFurnace.get())
             registration.addRecipeCatalyst(kiln, mezz.jei.api.constants.RecipeTypes.BLASTING);
     }
 }

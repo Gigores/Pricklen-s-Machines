@@ -1,15 +1,17 @@
 package com.pricklen.machines;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class ModConfig_ {
     public static final ForgeConfigSpec SPEC;
     public static final ModConfig_ CONFIG;
 
-    public final ForgeConfigSpec.BooleanValue loadFurnace;
-    public final ForgeConfigSpec.BooleanValue loadBlastFurnace;
+    public final ForgeConfigSpec.BooleanValue kilnLoadFurnace;
+    public final ForgeConfigSpec.BooleanValue kilnLoadBlastFurnace;
+    public final ForgeConfigSpec.IntValue kilnMaxLevels;
+    public final ForgeConfigSpec.IntValue kilnMinLevels;
 
     static {
         Pair<ModConfig_, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
@@ -19,10 +21,12 @@ public class ModConfig_ {
         SPEC = pair.getRight();
     }
     public ModConfig_(ForgeConfigSpec.Builder builder) {
-        builder.push("general");
+        builder.push("kiln");
 
-        loadFurnace = builder.define("useFurnaceRecipes", true);
-        loadBlastFurnace = builder.define("useBlastFurnaceRecipes", true);
+        kilnLoadFurnace = builder.define("useFurnaceRecipes", true);
+        kilnLoadBlastFurnace = builder.define("useBlastFurnaceRecipes", true);
+        kilnMaxLevels = builder.defineInRange("maxLevels", 6, 1, Integer.MAX_VALUE);
+        kilnMinLevels = builder.defineInRange("minLevels", 3, 1, Integer.MAX_VALUE);
 
         builder.pop();
     }
